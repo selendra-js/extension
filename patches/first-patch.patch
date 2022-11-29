@@ -1,0 +1,791 @@
+diff --git a/README.md b/README.md
+index 536cefe6..b12b0c46 100644
+--- a/README.md
++++ b/README.md
+@@ -4,7 +4,7 @@
+ [![beta](https://img.shields.io/npm/v/@polkadot/extension/beta?label=beta&logo=npm&style=flat-square)](https://www.npmjs.com/package/@polkadot/extension)
+ [![maintainability](https://img.shields.io/codeclimate/maintainability-percentage/polkadot-js/extension?logo=code-climate&style=flat-square)](https://codeclimate.com/github/polkadot-js/extension)
+ 
+-# ![polkadot{.js} extension](docs/logo.jpg)
++# ![selendra{.js} extension](docs/logo.jpg)
+ 
+ A very simple scaffolding browser extension that injects a [@polkadot/api](https://github.com/polkadot-js/api) Signer into a page, along with any associated accounts, allowing for use by any dapp. This is an extensible POC implementation of a Polkadot/Substrate browser signer.
+ 
+diff --git a/docs/favicon.ico b/docs/favicon.ico
+index f4cdb3ee..ec7a5461 100644
+Binary files a/docs/favicon.ico and b/docs/favicon.ico differ
+diff --git a/docs/index.html b/docs/index.html
+index 79f6c0b6..9407aa8b 100644
+--- a/docs/index.html
++++ b/docs/index.html
+@@ -66,12 +66,12 @@
+       }
+ 
+       a {
+-        color: rgb(227, 126, 6);
++        color: rgb(3, 169, 244);
+       }
+ 
+       a.button {
+         display: inline-block;
+-        background-color: rgb(227, 126, 6);
++        background-color: rgb(3, 169, 244);
+         height: 48px;
+         box-sizing: border-box;
+         border: medium none;
+@@ -87,7 +87,7 @@
+       }
+ 
+       a.button:hover {
+-        background: rgb(237, 147, 41) none repeat scroll 0% 0%;
++        background: rgb(3, 169, 244) none repeat scroll 0% 0%;
+       }
+ 
+       .insideButton {
+@@ -155,6 +155,9 @@
+         .right {
+           width: 100%;
+         }
++       .eFqNJj .mnemonicDisplay textarea {
++          color: rgb(3, 169, 244); 
++        }
+       }
+     </style>
+   </head>
+@@ -165,7 +168,7 @@
+           id="logo"
+           src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjE1IDE1IDE0MCAxNDAiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDE3MCAxNzA7em9vbTogMTsiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmJnMHtmaWxsOiNGRjhDMDB9IC5zdDB7ZmlsbDojRkZGRkZGfTwvc3R5bGU+PGc+PGNpcmNsZSBjbGFzcz0iYmcwIiBjeD0iODUiIGN5PSI4NSIgcj0iNzAiPjwvY2lyY2xlPjxnPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik04NSwzNC43Yy0yMC44LDAtMzcuOCwxNi45LTM3LjgsMzcuOGMwLDQuMiwwLjcsOC4zLDIsMTIuM2MwLjksMi43LDMuOSw0LjIsNi43LDMuM2MyLjctMC45LDQuMi0zLjksMy4zLTYuNyBjLTEuMS0zLjEtMS42LTYuNC0xLjUtOS43QzU4LjEsNTcuNiw2OS41LDQ2LDgzLjYsNDUuM2MxNS43LTAuOCwyOC43LDExLjcsMjguNywyNy4yYzAsMTQuNS0xMS40LDI2LjQtMjUuNywyNy4yIGMwLDAtNS4zLDAuMy03LjksMC43Yy0xLjMsMC4yLTIuMywwLjQtMywwLjVjLTAuMywwLjEtMC42LTAuMi0wLjUtMC41bDAuOS00LjRMODEsNzMuNGMwLjYtMi44LTEuMi01LjYtNC02LjIgYy0yLjgtMC42LTUuNiwxLjItNi4yLDRjMCwwLTExLjgsNTUtMTEuOSw1NS42Yy0wLjYsMi44LDEuMiw1LjYsNCw2LjJjMi44LDAuNiw1LjYtMS4yLDYuMi00YzAuMS0wLjYsMS43LTcuOSwxLjctNy45IGMxLjItNS42LDUuOC05LjcsMTEuMi0xMC40YzEuMi0wLjIsNS45LTAuNSw1LjktMC41YzE5LjUtMS41LDM0LjktMTcuOCwzNC45LTM3LjdDMTIyLjgsNTEuNiwxMDUuOCwzNC43LDg1LDM0Ljd6IE04Ny43LDEyMS43IGMtMy40LTAuNy02LjgsMS40LTcuNSw0LjljLTAuNywzLjQsMS40LDYuOCw0LjksNy41YzMuNCwwLjcsNi44LTEuNCw3LjUtNC45QzkzLjMsMTI1LjcsOTEuMiwxMjIuNCw4Ny43LDEyMS43eiI+PC9wYXRoPjwvZz48L2c+PC9zdmc+Cg=="
+         />
+-        <h1>Polkadot{.js} extension</h1>
++        <h1>selendra{.js} extension</h1>
+       </div>
+     </div>
+     <div id="content">
+diff --git a/package.json b/package.json
+index fae6cc46..e733cff0 100644
+--- a/package.json
++++ b/package.json
+@@ -10,9 +10,9 @@
+     "url": "https://github.com/polkadot-js/extension.git"
+   },
+   "sideEffects": false,
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "versions": {
+-    "git": "0.44.7-23-x",
++    "git": "0.1.0-1-x",
+     "npm": "0.44.6"
+   },
+   "workspaces": [
+diff --git a/packages/extension-base/package.json b/packages/extension-base/package.json
+index 7179bd96..f26330ce 100644
+--- a/packages/extension-base/package.json
++++ b/packages/extension-base/package.json
+@@ -17,14 +17,14 @@
+     "./detectPackage.cjs"
+   ],
+   "type": "module",
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "main": "index.js",
+   "dependencies": {
+     "@babel/runtime": "^7.20.1",
+     "@polkadot/api": "^9.8.2",
+-    "@polkadot/extension-chains": "^0.44.7-23-x",
+-    "@polkadot/extension-dapp": "^0.44.7-23-x",
+-    "@polkadot/extension-inject": "^0.44.7-23-x",
++    "@polkadot/extension-chains": "^0.1.0-1-x",
++    "@polkadot/extension-dapp": "^0.1.0-1-x",
++    "@polkadot/extension-inject": "^0.1.0-1-x",
+     "@polkadot/keyring": "^10.1.13",
+     "@polkadot/networks": "^10.1.13",
+     "@polkadot/phishing": "^0.18.11",
+@@ -38,6 +38,6 @@
+     "rxjs": "^7.5.7"
+   },
+   "devDependencies": {
+-    "@polkadot/extension-mocks": "^0.44.7-23-x"
++    "@polkadot/extension-mocks": "^0.1.0-1-x"
+   }
+ }
+diff --git a/packages/extension-base/src/packageInfo.ts b/packages/extension-base/src/packageInfo.ts
+index 65fbb6a8..80082e70 100644
+--- a/packages/extension-base/src/packageInfo.ts
++++ b/packages/extension-base/src/packageInfo.ts
+@@ -3,4 +3,4 @@
+ 
+ // Do not edit, auto-generated by @polkadot/dev
+ 
+-export const packageInfo = { name: '@polkadot/extension-base', path: 'auto', type: 'auto', version: '0.44.7-23-x' };
++export const packageInfo = { name: '@polkadot/extension-base', path: 'auto', type: 'auto', version: '0.1.0-1-x' };
+diff --git a/packages/extension-base/src/stores/Accounts.ts b/packages/extension-base/src/stores/Accounts.ts
+index 16398fe5..beb7d8bc 100644
+--- a/packages/extension-base/src/stores/Accounts.ts
++++ b/packages/extension-base/src/stores/Accounts.ts
+@@ -9,7 +9,7 @@ import BaseStore from './Base';
+ export default class AccountsStore extends BaseStore<KeyringJson> implements KeyringStore {
+   constructor () {
+     super(
+-      EXTENSION_PREFIX && EXTENSION_PREFIX !== 'polkadot{.js}'
++      EXTENSION_PREFIX && EXTENSION_PREFIX !== 'selendra{.js}'
+         ? `${EXTENSION_PREFIX}accounts`
+         : null
+     );
+diff --git a/packages/extension-base/src/stores/Metadata.ts b/packages/extension-base/src/stores/Metadata.ts
+index df59ab44..6694bfb2 100644
+--- a/packages/extension-base/src/stores/Metadata.ts
++++ b/packages/extension-base/src/stores/Metadata.ts
+@@ -9,7 +9,7 @@ import BaseStore from './Base';
+ export default class MetadataStore extends BaseStore<MetadataDef> {
+   constructor () {
+     super(
+-      EXTENSION_PREFIX && EXTENSION_PREFIX !== 'polkadot{.js}'
++      EXTENSION_PREFIX && EXTENSION_PREFIX !== 'selendra{.js}'
+         ? `${EXTENSION_PREFIX}metadata`
+         : 'metadata'
+     );
+diff --git a/packages/extension-chains/package.json b/packages/extension-chains/package.json
+index fa266220..4732341a 100644
+--- a/packages/extension-chains/package.json
++++ b/packages/extension-chains/package.json
+@@ -17,11 +17,11 @@
+     "./detectPackage.cjs"
+   ],
+   "type": "module",
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "main": "index.js",
+   "dependencies": {
+     "@babel/runtime": "^7.20.1",
+-    "@polkadot/extension-inject": "^0.44.7-23-x",
++    "@polkadot/extension-inject": "^0.1.0-1-x",
+     "@polkadot/networks": "^10.1.13",
+     "@polkadot/util": "^10.1.13",
+     "@polkadot/util-crypto": "^10.1.13"
+diff --git a/packages/extension-chains/src/packageInfo.ts b/packages/extension-chains/src/packageInfo.ts
+index ed4920b5..25a4fd10 100644
+--- a/packages/extension-chains/src/packageInfo.ts
++++ b/packages/extension-chains/src/packageInfo.ts
+@@ -3,4 +3,4 @@
+ 
+ // Do not edit, auto-generated by @polkadot/dev
+ 
+-export const packageInfo = { name: '@polkadot/extension-chains', path: 'auto', type: 'auto', version: '0.44.7-23-x' };
++export const packageInfo = { name: '@polkadot/extension-chains', path: 'auto', type: 'auto', version: '0.1.0-1-x' };
+diff --git a/packages/extension-compat-metamask/package.json b/packages/extension-compat-metamask/package.json
+index 7e220fe1..8a36e7f6 100644
+--- a/packages/extension-compat-metamask/package.json
++++ b/packages/extension-compat-metamask/package.json
+@@ -17,12 +17,12 @@
+     "./detectPackage.cjs"
+   ],
+   "type": "module",
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "main": "index.js",
+   "dependencies": {
+     "@babel/runtime": "^7.20.1",
+     "@metamask/detect-provider": "^1.2.0",
+-    "@polkadot/extension-inject": "^0.44.7-23-x",
++    "@polkadot/extension-inject": "^0.1.0-1-x",
+     "@polkadot/types": "^9.8.2",
+     "@polkadot/util": "^10.1.13",
+     "web3": "^1.8.1"
+diff --git a/packages/extension-compat-metamask/src/packageInfo.ts b/packages/extension-compat-metamask/src/packageInfo.ts
+index a21d6c90..0b00b14b 100644
+--- a/packages/extension-compat-metamask/src/packageInfo.ts
++++ b/packages/extension-compat-metamask/src/packageInfo.ts
+@@ -3,4 +3,4 @@
+ 
+ // Do not edit, auto-generated by @polkadot/dev
+ 
+-export const packageInfo = { name: '@polkadot/extension-compat-metamask', path: 'auto', type: 'auto', version: '0.44.7-23-x' };
++export const packageInfo = { name: '@polkadot/extension-compat-metamask', path: 'auto', type: 'auto', version: '0.1.0-1-x' };
+diff --git a/packages/extension-dapp/package.json b/packages/extension-dapp/package.json
+index ab009a9e..88e38a67 100644
+--- a/packages/extension-dapp/package.json
++++ b/packages/extension-dapp/package.json
+@@ -17,11 +17,11 @@
+     "./detectPackage.cjs"
+   ],
+   "type": "module",
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "main": "index.js",
+   "dependencies": {
+     "@babel/runtime": "^7.20.1",
+-    "@polkadot/extension-inject": "^0.44.7-23-x",
++    "@polkadot/extension-inject": "^0.1.0-1-x",
+     "@polkadot/util": "^10.1.13",
+     "@polkadot/util-crypto": "^10.1.13"
+   },
+diff --git a/packages/extension-dapp/src/packageInfo.ts b/packages/extension-dapp/src/packageInfo.ts
+index 19b11161..3a3d2b58 100644
+--- a/packages/extension-dapp/src/packageInfo.ts
++++ b/packages/extension-dapp/src/packageInfo.ts
+@@ -3,4 +3,4 @@
+ 
+ // Do not edit, auto-generated by @polkadot/dev
+ 
+-export const packageInfo = { name: '@polkadot/extension-dapp', path: 'auto', type: 'auto', version: '0.44.7-23-x' };
++export const packageInfo = { name: '@polkadot/extension-dapp', path: 'auto', type: 'auto', version: '0.1.0-1-x' };
+diff --git a/packages/extension-inject/package.json b/packages/extension-inject/package.json
+index a82e8d85..5336cea9 100644
+--- a/packages/extension-inject/package.json
++++ b/packages/extension-inject/package.json
+@@ -14,7 +14,7 @@
+   },
+   "sideEffects": true,
+   "type": "module",
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "main": "index.js",
+   "dependencies": {
+     "@babel/runtime": "^7.20.1",
+diff --git a/packages/extension-inject/src/packageInfo.ts b/packages/extension-inject/src/packageInfo.ts
+index c129e059..4dd3c172 100644
+--- a/packages/extension-inject/src/packageInfo.ts
++++ b/packages/extension-inject/src/packageInfo.ts
+@@ -3,4 +3,4 @@
+ 
+ // Do not edit, auto-generated by @polkadot/dev
+ 
+-export const packageInfo = { name: '@polkadot/extension-inject', path: 'auto', type: 'auto', version: '0.44.7-23-x' };
++export const packageInfo = { name: '@polkadot/extension-inject', path: 'auto', type: 'auto', version: '0.1.0-1-x' };
+diff --git a/packages/extension-mocks/package.json b/packages/extension-mocks/package.json
+index c2b39e1d..9c0f39f6 100644
+--- a/packages/extension-mocks/package.json
++++ b/packages/extension-mocks/package.json
+@@ -14,7 +14,7 @@
+   },
+   "sideEffects": false,
+   "type": "module",
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "main": "index.js",
+   "dependencies": {
+     "@babel/runtime": "^7.20.1",
+diff --git a/packages/extension-ui/package.json b/packages/extension-ui/package.json
+index 45e6c553..ea26bf6d 100644
+--- a/packages/extension-ui/package.json
++++ b/packages/extension-ui/package.json
+@@ -14,7 +14,7 @@
+   },
+   "sideEffects": true,
+   "type": "module",
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "dependencies": {
+     "@babel/runtime": "^7.20.1",
+     "@fortawesome/fontawesome-svg-core": "^6.2.1",
+@@ -22,10 +22,10 @@
+     "@fortawesome/free-regular-svg-icons": "^6.2.1",
+     "@fortawesome/free-solid-svg-icons": "^6.2.1",
+     "@fortawesome/react-fontawesome": "^0.2.0",
+-    "@polkadot/extension-base": "^0.44.7-23-x",
+-    "@polkadot/extension-chains": "^0.44.7-23-x",
+-    "@polkadot/extension-dapp": "^0.44.7-23-x",
+-    "@polkadot/extension-inject": "^0.44.7-23-x",
++    "@polkadot/extension-base": "^0.1.0-1-x",
++    "@polkadot/extension-chains": "^0.1.0-1-x",
++    "@polkadot/extension-dapp": "^0.1.0-1-x",
++    "@polkadot/extension-inject": "^0.1.0-1-x",
+     "@polkadot/hw-ledger": "^10.1.13",
+     "@polkadot/keyring": "^10.1.13",
+     "@polkadot/networks": "^10.1.13",
+@@ -49,7 +49,7 @@
+     "styled-components": "^5.3.6"
+   },
+   "devDependencies": {
+-    "@polkadot/extension-mocks": "^0.44.7-23-x",
++    "@polkadot/extension-mocks": "^0.1.0-1-x",
+     "@types/enzyme": "^3.10.12",
+     "@types/enzyme-adapter-react-16": "^1.0.6",
+     "@types/file-saver": "^2.0.5",
+diff --git a/packages/extension-ui/src/Popup/PhishingDetected.tsx b/packages/extension-ui/src/Popup/PhishingDetected.tsx
+index 9612ab8c..682dd868 100644
+--- a/packages/extension-ui/src/Popup/PhishingDetected.tsx
++++ b/packages/extension-ui/src/Popup/PhishingDetected.tsx
+@@ -29,7 +29,7 @@ function PhishingDetected ({ className }: Props): React.ReactElement<Props> {
+       <Header text={t<string>('Phishing detected')} />
+       <div className={className}>
+         <p>
+-          {t<string>('You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts and your tokens.')}
++          {t<string>('You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts and your tokens.')}
+         </p>
+         <p className='websiteAddress'>
+           {decodedWebsite}
+diff --git a/packages/extension-ui/src/components/themes.ts b/packages/extension-ui/src/components/themes.ts
+index b3ad2964..16f1f210 100644
+--- a/packages/extension-ui/src/components/themes.ts
++++ b/packages/extension-ui/src/components/themes.ts
+@@ -4,7 +4,7 @@
+ const darkTheme = {
+   accountDotsIconColor: '#8E8E8E',
+   addAccountImageBackground: '#1A1B20',
+-  backButtonBackground: '#3A3B41',
++  backButtonBackground: '#3A3B41', // SEL
+   backButtonBackgroundHover: '#3a3b41ad',
+   backButtonTextColor: '#FFFFFF',
+   background: '#26272C',
+@@ -16,10 +16,10 @@ const darkTheme = {
+   boxMargin: '0.75rem 0',
+   boxPadding: '0 0.25rem',
+   boxShadow: 'rgba(0, 0, 0, 0.86)',
+-  buttonBackground: '#E86F00',
++  buttonBackground: '#35a7f2',
+   buttonBackgroundDanger: '#AF1111',
+   buttonBackgroundDangerHover: '#D93B3B',
+-  buttonBackgroundHover: '#ED9329',
++  buttonBackgroundHover: '#29afed', // Sel
+   buttonTextColor: '#FFFFFF',
+   connectedDotColor: 'seagreen',
+   errorBorderColor: '#7E3530',
+@@ -29,7 +29,7 @@ const darkTheme = {
+   highlightedAreaBackground: '#212226',
+   iconDangerColor: '#AF1111',
+   iconNeutralColor: '#8E8E8E',
+-  iconWarningColor: '#FF7D01',
++  iconWarningColor: '#03A9F4',
+   id: 'dark',
+   identiconBackground: '#F4F5F8',
+   inputBackground: '#111218',
+@@ -41,7 +41,7 @@ const darkTheme = {
+   lineHeight: '26px',
+   parentLabelColor: '#4A7463',
+   popupBackground: '#38393F',
+-  primaryColor: '#FF7D01',
++  primaryColor: '#03A9F4',
+   readonlyInputBackground: '#1A1B20',
+   subTextColor: '#DDD',
+   textColor: '#FFFFFF',
+diff --git a/packages/extension-ui/src/partials/Header.tsx b/packages/extension-ui/src/partials/Header.tsx
+index a7793d47..ed121a15 100644
+--- a/packages/extension-ui/src/partials/Header.tsx
++++ b/packages/extension-ui/src/partials/Header.tsx
+@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+ import styled from 'styled-components';
+ 
+-import logo from '../assets/pjs.svg';
++import logo from '../assets/sjs.png';
+ import { ActionContext } from '../components';
+ import InputFilter from '../components/InputFilter';
+ import Link from '../components/Link';
+@@ -116,7 +116,7 @@ function Header ({ children, className = '', onFilter, showAdd, showBackArrow, s
+               />
+             )
+           }
+-          <span className='logoText'>{text || 'polkadot{.js}'}</span>
++          <span className='logoText'>{text || 'selendra{.js}'}</span>
+         </div>
+         {showSearch && (
+           <div className={`searchBarWrapper ${isSearchOpen ? 'selected' : ''}`}>
+diff --git a/packages/extension-ui/src/util/buildHierarchy.spec.ts b/packages/extension-ui/src/util/buildHierarchy.spec.ts
+index 7feed7ee..3c1c4f01 100644
+--- a/packages/extension-ui/src/util/buildHierarchy.spec.ts
++++ b/packages/extension-ui/src/util/buildHierarchy.spec.ts
+@@ -6,8 +6,8 @@ import type { AccountJson, AccountWithChildren } from '@polkadot/extension-base/
+ import { buildHierarchy } from './buildHierarchy';
+ 
+ const genesisExample = {
+-  KUSAMA: '0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe',
+-  POLKADOT: '0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3'
++  KUMANDRA: '0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe',
++  SELENDRA: '0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3'
+ };
+ 
+ const testHierarchy = (accounts: AccountJson[], expected: AccountWithChildren[]): void => {
+diff --git a/packages/extension/manifest.json b/packages/extension/manifest.json
+index 202476bb..c700acab 100644
+--- a/packages/extension/manifest.json
++++ b/packages/extension/manifest.json
+@@ -1,9 +1,9 @@
+ {
+   "author": "polkadot.{js}",
+-  "description": "Manage your Polkadot accounts outside of dapps. Injects the accounts and allows signing transactions for a specific account.",
+-  "homepage_url": "https://github.com/polkadot-js/extension",
+-  "name": "polkadot{.js} extension",
+-  "short_name": "polkadot{.js}",
++  "description": "Manage your Selendra accounts outside of dapps. Injects the accounts and allows signing transactions for a specific account.",
++  "homepage_url": "https://github.com/selendra-js/extension",
++  "name": "selendra{.js} extension",
++  "short_name": "selendra{.js}",
+   "manifest_version": 2,
+   "permissions": ["storage", "tabs"],
+   "background": {
+@@ -11,7 +11,7 @@
+     "persistent": true
+   },
+   "browser_action": {
+-    "default_title": "polkadot{.js}",
++    "default_title": "selendra{.js}",
+     "default_popup": "index.html"
+   },
+   "content_scripts": [{
+diff --git a/packages/extension/package.json b/packages/extension/package.json
+index 09c8e4bf..8e5d7f95 100644
+--- a/packages/extension/package.json
++++ b/packages/extension/package.json
+@@ -14,12 +14,12 @@
+   },
+   "sideEffects": false,
+   "type": "module",
+-  "version": "0.44.7-23-x",
++  "version": "0.1.0-1-x",
+   "dependencies": {
+     "@babel/runtime": "^7.20.1",
+-    "@polkadot/extension-base": "^0.44.7-23-x",
+-    "@polkadot/extension-inject": "^0.44.7-23-x",
+-    "@polkadot/extension-ui": "^0.44.7-23-x"
++    "@polkadot/extension-base": "^0.1.0-1-x",
++    "@polkadot/extension-inject": "^0.1.0-1-x",
++    "@polkadot/extension-ui": "^0.1.0-1-x"
+   },
+   "devDependencies": {
+     "@polkadot/dev": "^0.67.161",
+diff --git a/packages/extension/public/images/icon-128.png b/packages/extension/public/images/icon-128.png
+index e65f627c..03e31e5c 100644
+Binary files a/packages/extension/public/images/icon-128.png and b/packages/extension/public/images/icon-128.png differ
+diff --git a/packages/extension/public/images/icon-16.png b/packages/extension/public/images/icon-16.png
+index 28ae22ff..94158699 100644
+Binary files a/packages/extension/public/images/icon-16.png and b/packages/extension/public/images/icon-16.png differ
+diff --git a/packages/extension/public/images/icon-32.png b/packages/extension/public/images/icon-32.png
+index a37852bb..47f5625b 100644
+Binary files a/packages/extension/public/images/icon-32.png and b/packages/extension/public/images/icon-32.png differ
+diff --git a/packages/extension/public/images/icon-48.png b/packages/extension/public/images/icon-48.png
+index 9e6e39a3..8bab4595 100644
+Binary files a/packages/extension/public/images/icon-48.png and b/packages/extension/public/images/icon-48.png differ
+diff --git a/packages/extension/public/images/icon-64.png b/packages/extension/public/images/icon-64.png
+index 746db520..e4d941ce 100644
+Binary files a/packages/extension/public/images/icon-64.png and b/packages/extension/public/images/icon-64.png differ
+diff --git a/packages/extension/public/images/pjs.svg b/packages/extension/public/images/pjs.svg
+index 595779f2..2d21d0f4 100644
+--- a/packages/extension/public/images/pjs.svg
++++ b/packages/extension/public/images/pjs.svg
+@@ -1,4 +1,17 @@
+-<?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- Generator: Adobe Illustrator 23.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  --><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="15 15 140 140" style="enable-background:new 0 0 170 170;zoom: 1;" xml:space="preserve"><style type="text/css">
+-  .bg0{fill:#FF8C00}
+-        .st0{fill:#FFFFFF;}
+-</style><g><circle class="bg0" cx="85" cy="85" r="70"></circle><g><path class="st0" d="M85,34.7c-20.8,0-37.8,16.9-37.8,37.8c0,4.2,0.7,8.3,2,12.3c0.9,2.7,3.9,4.2,6.7,3.3c2.7-0.9,4.2-3.9,3.3-6.7 c-1.1-3.1-1.6-6.4-1.5-9.7C58.1,57.6,69.5,46,83.6,45.3c15.7-0.8,28.7,11.7,28.7,27.2c0,14.5-11.4,26.4-25.7,27.2 c0,0-5.3,0.3-7.9,0.7c-1.3,0.2-2.3,0.4-3,0.5c-0.3,0.1-0.6-0.2-0.5-0.5l0.9-4.4L81,73.4c0.6-2.8-1.2-5.6-4-6.2 c-2.8-0.6-5.6,1.2-6.2,4c0,0-11.8,55-11.9,55.6c-0.6,2.8,1.2,5.6,4,6.2c2.8,0.6,5.6-1.2,6.2-4c0.1-0.6,1.7-7.9,1.7-7.9 c1.2-5.6,5.8-9.7,11.2-10.4c1.2-0.2,5.9-0.5,5.9-0.5c19.5-1.5,34.9-17.8,34.9-37.7C122.8,51.6,105.8,34.7,85,34.7z M87.7,121.7 c-3.4-0.7-6.8,1.4-7.5,4.9c-0.7,3.4,1.4,6.8,4.9,7.5c3.4,0.7,6.8-1.4,7.5-4.9C93.3,125.7,91.2,122.4,87.7,121.7z"></path></g></g></svg>
+\ No newline at end of file
++<?xml version="1.0" standalone="no"?>
++<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
++ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
++<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
++ width="128.000000pt" height="128.000000pt" viewBox="0 0 128.000000 128.000000"
++ preserveAspectRatio="xMidYMid meet">
++
++<g transform="translate(0.000000,128.000000) scale(0.100000,-0.100000)"
++fill="#000000" stroke="none">
++<path d="M0 640 l0 -640 640 0 640 0 0 640 0 640 -640 0 -640 0 0 -640z m753
++404 l108 -217 -180 -182 c-168 -168 -181 -184 -181 -218 0 -30 9 -46 54 -94
++l54 -58 -59 -60 -59 -60 -136 136 -136 136 99 196 98 197 42 -42 43 -42 0 127
++0 127 67 135 c37 74 70 135 73 135 3 0 54 -97 113 -216z m95 -821 l-208 -208
++-60 60 -60 60 125 125 c160 161 164 171 81 258 l-57 60 103 107 102 107 90
++-181 91 -181 -207 -207z"/>
++</g>
++</svg>
+diff --git a/packages/extension/public/index.html b/packages/extension/public/index.html
+index e265dde1..b33338a7 100644
+--- a/packages/extension/public/index.html
++++ b/packages/extension/public/index.html
+@@ -2,7 +2,7 @@
+ <html lang="en">
+   <head>
+     <meta charset="utf-8">
+-    <title>polkadot{.js}</title>
++    <title>selendra{.js}</title>
+     <link href="fonts/fonts.css" rel="stylesheet">
+     <style type="text/css">
+       body {
+diff --git a/packages/extension/public/locales/bn/translation.json b/packages/extension/public/locales/bn/translation.json
+index c0cfd1c1..e536584b 100644
+--- a/packages/extension/public/locales/bn/translation.json
++++ b/packages/extension/public/locales/bn/translation.json
+@@ -106,7 +106,7 @@
+     "Phishing detected": "ফিশিং শনাক্ত হয়েছে",
+     "Remember my password for the next {{expiration}} minutes": "পরবর্তী {{expiration}} মিনিটের জন্য আমার পাসওয়ার্ড মনে রাখুন",
+     "Extend the period without password by {{expiration}} minutes": "পাসওয়ার্ড ছাড়াই সময়সীমা {{expiration}} মিনিট বাড়িয়ে দিন",
+-    "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts.": "আপনাকে ফিরিয়ে দেওয়া হয়েছে কারণ Polkadot{.js} এক্সটেনশন মনে করে এই ওয়েবসাইটটি আপনার অ্যাকাউন্টের নিরাপত্তার সাথে আপস করতে পারে।",
++    "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts.": "আপনাকে ফিরিয়ে দেওয়া হয়েছে কারণ selendra{.js} এক্সটেনশন মনে করে এই ওয়েবসাইটটি আপনার অ্যাকাউন্টের নিরাপত্তার সাথে আপস করতে পারে।",
+     "The redirection could also happen on an outright malicious website or on a legitimate websites that has been compromised and flagged.": "ফিরিয়ে দেওয়ার ঘটনা সম্পূর্ণ ক্ষতিকারক ওয়েবসাইটে এমনকি একটি বৈধ ওয়েবসাইটেও ঘটতে পারে যেগুলো আপস করেছে এবং চিহ্নিত হয়েছে।",
+     "This redirection is based on a list of websites accessible at https://github.com/polkadot-js/phishing. Note that this is a community-driven, curated list. \n It might be incomplete or inaccurate.": "এই ফেরানোর ঘটনা ওয়েবসাইটগুলোর একটি তালিকার উপর ভিত্তি করে হয়, যেটি https://github.com/polkadot-js/phishing-এ পাওয়া যাবে। মনে রাখবেন এটি একটি সম্প্রদায়-চালিত, কিউরেটেড তালিকা। \n এটা অসম্পূর্ণ বা অযথার্থ হতে পারে।",
+     "copy address": "ঠিকানা কপি করুন",
+@@ -154,7 +154,7 @@
+     "Sign on Ledger": "লেজারে সাইন করুন",
+     "Allow use on any chain": "যেকোনো চেইনে ব্যবহারের অনুমতি দিন",
+     "Select network": "নেটওয়ার্ক নির্বাচন করুন",
+-    "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts and your tokens.": " আপনাকে ফিরিয়ে দেওয়া হয়েছে কারণ Polkadot{.js} এক্সটেনশন বিশ্বাস করে এই ওয়েবসাইটটি আপনার অ্যাকাউন্ট এবং টোকেনগুলোর নিরাপত্তার ব্যাপারে আপস করতে পারে।",
++    "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts and your tokens.": " আপনাকে ফিরিয়ে দেওয়া হয়েছে কারণ selendra{.js} এক্সটেনশন বিশ্বাস করে এই ওয়েবসাইটটি আপনার অ্যাকাউন্ট এবং টোকেনগুলোর নিরাপত্তার ব্যাপারে আপস করতে পারে।",
+     "Export all accounts": "সমস্ত অ্যাকাউন্ট এক্সপোর্ট করুন",
+     "All account": "সমস্ত অ্যাকাউন্ট",
+     "password for encrypting all accounts": "সকল অ্যাকাউন্ট এনক্রিপ্ট করার জন্য পাসওয়ার্ড",
+diff --git a/packages/extension/public/locales/en/translation.json b/packages/extension/public/locales/en/translation.json
+index c3f46abc..8828a7dc 100644
+--- a/packages/extension/public/locales/en/translation.json
++++ b/packages/extension/public/locales/en/translation.json
+@@ -106,7 +106,7 @@
+   "Phishing detected": "",
+   "Remember my password for the next {{expiration}} minutes": "",
+   "Extend the period without password by {{expiration}} minutes": "",
+-  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts.": "",
++  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts.": "",
+   "The redirection could also happen on an outright malicious website or on a legitimate websites that has been compromised and flagged.": "",
+   "This redirection is based on a list of websites accessible at https://github.com/polkadot-js/phishing. Note that this is a community-driven, curated list. \n It might be incomplete or inaccurate.": "",
+   "copy address": "",
+@@ -154,7 +154,7 @@
+   "Sign on Ledger": "",
+   "Allow use on any chain": "",
+   "Select network": "",
+-  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "",
++  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "",
+   "Export all accounts": "",
+   "All account": "",
+   "password for encrypting all accounts": "",
+diff --git a/packages/extension/public/locales/fr/translation.json b/packages/extension/public/locales/fr/translation.json
+index 2cc135f0..55496d25 100644
+--- a/packages/extension/public/locales/fr/translation.json
++++ b/packages/extension/public/locales/fr/translation.json
+@@ -106,7 +106,7 @@
+   "Phishing detected": "Phishing détecté",
+   "Remember my password for the next {{expiration}} minutes": "Retenir le mot de passe pour {{expiration}} minutes",
+   "Extend the period without password by {{expiration}} minutes": "Ne pas demander le mot de passe pour {{expiration}} minutes de plus",
+-  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts.": "Vous avez été redirigé, car l'extension Polkadot{.js} estime que ce site Web pourrait compromettre la sécurité de vos comptes.",
++  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts.": "Vous avez été redirigé, car l'extension selendra{.js} estime que ce site Web pourrait compromettre la sécurité de vos comptes.",
+   "The redirection could also happen on an outright malicious website or on a legitimate websites that has been compromised and flagged.": "La redirection peut également se produire sur un site Web malveillant ou sur un site Web légitime qui a été compromis et signalé.",
+   "This redirection is based on a list of websites accessible at https://github.com/polkadot-js/phishing. Note that this is a community-driven, curated list.\n It might be incomplete or inaccurate.": "Cette redirection est basée sur une liste de sites Web accessibles à l'adresse https://github.com/polkadot-js/phishing. Notez qu'il s'agit d'une liste maintenue par la communauté.\n Elle peut être incomplète ou inexacte.",
+   "copy address": "copier l'adresse",
+diff --git a/packages/extension/public/locales/pl/translation.json b/packages/extension/public/locales/pl/translation.json
+index cfbae4e1..ec559ca6 100644
+--- a/packages/extension/public/locales/pl/translation.json
++++ b/packages/extension/public/locales/pl/translation.json
+@@ -106,7 +106,7 @@
+ 	  "Phishing detected": "Wykryto phishing",
+ 	  "Remember my password for the next {{expiration}} minutes": "Zapamiętaj moje hasło przez następne {{expiration}} minut",
+ 	  "Extend the period without password by {{expiration}} minutes": "Przedłuż okres bez hasła o {{expiration}} minut",
+-	  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts.": "Zostałeś przekierowany ponieważ wtyczka Polkadot{.js} uważa że ta strona może naruszyć bezpieczeństwo Twoich kont.",
++	  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts.": "Zostałeś przekierowany ponieważ wtyczka selendra{.js} uważa że ta strona może naruszyć bezpieczeństwo Twoich kont.",
+ 	  "The redirection could also happen on an outright malicious website or on a legitimate websites that has been compromised and flagged.": "Przekierowanie może również nastąpić na całkowicie złośliwej witrynie lub na legalnych witrynach, które zostały zhakowane i oznaczone.",
+ 	  "This redirection is based on a list of websites accessible at https://github.com/polkadot-js/phishing. Note that this is a community-driven, curated list. \n It might be incomplete or inaccurate.": "To przekierowanie jest oparte na liście stron internetowych dostępnych pod adresem https://github.com/polkadot-js/phishing. Pamiętaj, że jest to lista zarządzana przez społeczność. \n Może być niekompletna lub niedokładna.",
+ 	  "copy address": "kopiuj adres",
+@@ -154,7 +154,7 @@
+ 	  "Sign on Ledger": "Podpisz z użyciem Ledger",
+ 	  "Allow use on any chain": "Zezwól na użycie w dowolnym łańcuchu",
+ 	  "Select network": "Wybierz sieć",
+-	  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "Zostałeś przekierowany ponieważ wtyczka Polkadot{.js} uważa że ta strona może naruszyć bezpieczeństwo Twoich kont i aktywów}.",
++	  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "Zostałeś przekierowany ponieważ wtyczka selendra{.js} uważa że ta strona może naruszyć bezpieczeństwo Twoich kont i aktywów}.",
+ 	  "Export all accounts": "Eksportuj wszystkie konta",
+ 	  "All account": "Wszystkie konta",
+ 	  "password for encrypting all accounts": "hasło do szyfrowania wszystkich kont",
+diff --git a/packages/extension/public/locales/th/translation.json b/packages/extension/public/locales/th/translation.json
+index 08c29b31..eee45a91 100644
+--- a/packages/extension/public/locales/th/translation.json
++++ b/packages/extension/public/locales/th/translation.json
+@@ -106,7 +106,7 @@
+   "Phishing detected": "ตรวจพบฟิชชิ่ง",
+   "Remember my password for the next {{expiration}} minutes": "จดจำรหัสผ่านเป็นเวลา {{expiration}} นาที",
+   "Extend the period without password by {{expiration}} minutes": "ขยายช่วงที่ไม่ต้องกรอกรหัสผ่าน เป็นเวลา {expiration}} นาที",
+-  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts.": "ทิศทางของคุณถูกเปลี่ยนเพราะโปรแกรมส่วนขยาย Polkadot{.js} เชื่อว่าเว็บไซต์นี้อาจคุกคามความปลอดภัยของบัญชีของคุณ",
++  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts.": "ทิศทางของคุณถูกเปลี่ยนเพราะโปรแกรมส่วนขยาย selendra{.js} เชื่อว่าเว็บไซต์นี้อาจคุกคามความปลอดภัยของบัญชีของคุณ",
+   "The redirection could also happen on an outright malicious website or on a legitimate websites that has been compromised and flagged.": "การเปลี่ยนทิศทางจะเกิดขึ้นเมื่อมีการเข้าถึงเว็บไซต์ที่เป็นอันตราย",
+   "This redirection is based on a list of websites accessible at https://github.com/polkadot-js/phishing. Note that this is a community-driven, curated list. \n It might be incomplete or inaccurate.": "การเปลี่ยนทิศทางอ้างอิงจากรายชื่อเว็ปไซต์ใน https://github.com/polkadot-js/phishing หมายเหตุ-รายชื่อดังกล่าวได้มาจากการรวบรวมข้อมูลของคนในคอมมูนิตี้ \n ซึ่งอาจไม่ครบถ้วนสมบูรณ์หรืออาจมีข้อผิดพลาดเกิดขึ้นได้",
+   "copy address": "คัดลอกที่อยู่",
+@@ -154,7 +154,7 @@
+   "Sign on Ledger": "เซ็นบนLedger",
+   "Allow use on any chain": "อนุญาตให้ใช้งานในทุกเชน",
+   "Select network": "เลือกเครือข่าย",
+-  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "ทิศทางของคุณถูกเปลี่ยนเพราะโปรแกรมส่วนขยาย Polkadot{.js} เชื่อว่าเว็บไซต์นี้อาจคุกคามความปลอดภัยของบัญชีและโทเคนของคุณได้",
++  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "ทิศทางของคุณถูกเปลี่ยนเพราะโปรแกรมส่วนขยาย selendra{.js} เชื่อว่าเว็บไซต์นี้อาจคุกคามความปลอดภัยของบัญชีและโทเคนของคุณได้",
+   "Export all accounts": "ส่งออกทุกบัญชี",
+   "All account": "ทุกบัญชี",
+   "password for encrypting all accounts": "รหัสผ่านสำหรับการเข้ารหัสทุกบัญชี",
+diff --git a/packages/extension/public/locales/tr/translation.json b/packages/extension/public/locales/tr/translation.json
+index eae4104b..45aeee82 100644
+--- a/packages/extension/public/locales/tr/translation.json
++++ b/packages/extension/public/locales/tr/translation.json
+@@ -106,7 +106,7 @@
+   "Phishing detected": "Kimlik avı algılandı",
+   "Remember my password for the next {{expiration}} minutes": "Sonraki {{expiration}} dakika için şifremi hatırla",
+   "Extend the period without password by {{expiration}} minutes": "Şifresiz süreyi {{expiration}} dakika uzatın",
+-  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts.": "Polkadot {.js} uzantısı bu web sitesinin hesaplarınızın güvenliğini tehlikeye atabileceğine inandığı için yeniden yönlendirildiniz.",
++  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts.": "Polkadot {.js} uzantısı bu web sitesinin hesaplarınızın güvenliğini tehlikeye atabileceğine inandığı için yeniden yönlendirildiniz.",
+   "The redirection could also happen on an outright malicious website or on a legitimate websites that has been compromised and flagged.": "Yönlendirme, tamamen kötü amaçlı bir web sitesinde veya güvenliği ihlal edilmiş ve işaretlenmiş meşru web sitelerinde de olabilir.",
+   "This redirection is based on a list of websites accessible at https://github.com/polkadot-js/phishing. Note that this is a community-driven, curated list. \n It might be incomplete or inaccurate.": "Bu yönlendirme, https://github.com/polkadot-js/phishing adresinden erişilebilen web sitelerinin bir listesine dayanmaktadır. Bunun topluluk odaklı, seçilmiş bir liste olduğunu unutmayın.   N Eksik veya yanlış olabilir.",
+   "copy address": "Adresi kopyala",
+@@ -154,7 +154,7 @@
+   "Sign on Ledger": "Ledgerde Oturum Aç",
+   "Allow use on any chain": "Herhangi bir zincirde kullanıma izin ver",
+   "Select network": "Ağı seçin",
+-  "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "Polkadot {.js} uzantısı, bu web sitesinin hesaplarınızın ve belirteçlerinizin güvenliğini tehlikeye atabileceğine inandığı için yeniden yönlendirildiniz",
++  "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "Polkadot {.js} uzantısı, bu web sitesinin hesaplarınızın ve belirteçlerinizin güvenliğini tehlikeye atabileceğine inandığı için yeniden yönlendirildiniz",
+   "Export all accounts": "Tüm hesapları dışa aktar",
+   "All account": "Tüm hesaplar",
+   "password for encrypting all accounts": "tüm hesapların şifrelenmiş şifresi",
+diff --git a/packages/extension/public/locales/ur/translation.json b/packages/extension/public/locales/ur/translation.json
+index b4d49661..56cff0b1 100644
+--- a/packages/extension/public/locales/ur/translation.json
++++ b/packages/extension/public/locales/ur/translation.json
+@@ -106,7 +106,7 @@
+     "Phishing detected": "فزنگکاپتہچلا۔",
+     "Remember my password for the next {{expiration}} minutes": "اگلے {{expiration}} منٹکےلیےمیراپاسورڈیادرکھیں۔",
+     "Extend the period without password by {{expiration}} minutes": "مدتکوبغیرپاسورڈکے {{expiration}} منٹتکبڑھادیں۔",
+-    "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts.": "آپکوریڈائریکٹکیاگیاہےکیونکہپولکاڈوٹ {.js} ایکسٹینشنکاخیالہےکہیہویبسائٹآپکےاکاؤنٹسکیسیکورٹیکوسمجھوتہکرسکتیہے۔",
++    "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts.": "آپکوریڈائریکٹکیاگیاہےکیونکہپولکاڈوٹ {.js} ایکسٹینشنکاخیالہےکہیہویبسائٹآپکےاکاؤنٹسکیسیکورٹیکوسمجھوتہکرسکتیہے۔",
+     "The redirection could also happen on an outright malicious website or on a legitimate websites that has been compromised and flagged.": "ری ڈائریکٹایکمکملطورپربدنیتیپرمبنیویبسائٹیاکسیجائزویبسائٹپربھیہوسکتیہےجسپرسمجھوتہکیاگیاہواورجھنڈالگایاگیاہو۔",
+     "This redirection is based on a list of websites accessible at https://github.com/polkadot-js/phishing. Note that this is a community-driven, curated list. \n It might be incomplete or inaccurate.": "یہریڈائریکشنhttps://github.com/polkadot-js/phishingپرقابلرسائیویبسائٹسکیفہرستپرمبنیہے۔نوٹکریںکہیہکمیونٹیسےچلنےوالی،کیوریٹڈفہرستہے۔  It n یہنامکملیاغلطہوسکتاہے۔",
+     "copy address": "کاپیایڈریس",
+@@ -154,7 +154,7 @@
+     "Sign on Ledger": "لیجرپرسائنکریں۔",
+     "Allow use on any chain": "کسیبھیزنجیرپراستعمالکیاجازتدیں۔",
+     "Select network": "نیٹورکمنتخبکریں۔",
+-    "You have been redirected because the Polkadot{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "آپکوریڈائریکٹکیاگیاہےکیونکہپولکاڈوٹ {.js} ایکسٹینشنکاخیالہےکہیہویبسائٹآپکےاکاؤنٹساورآپکےٹوکنکیحفاظتکوسمجھوتہکرسکتیہے",
++    "You have been redirected because the selendra{.js} extension believes that this website could compromise the security of your accounts and your tokens.": "آپکوریڈائریکٹکیاگیاہےکیونکہپولکاڈوٹ {.js} ایکسٹینشنکاخیالہےکہیہویبسائٹآپکےاکاؤنٹساورآپکےٹوکنکیحفاظتکوسمجھوتہکرسکتیہے",
+     "Export all accounts": "تماماکاؤنٹسبرآمدکریں۔",
+     "All account": "تماماکاؤنٹ",
+     "password for encrypting all accounts": "تماماکاؤنٹسکوخفیہکرنےکےلیےپاسورڈ۔",
+diff --git a/packages/extension/public/notification.html b/packages/extension/public/notification.html
+index cf5aa6ca..5b18da43 100644
+--- a/packages/extension/public/notification.html
++++ b/packages/extension/public/notification.html
+@@ -2,7 +2,7 @@
+ <html lang="en">
+   <head>
+     <meta charset="utf-8">
+-    <title>polkadot{.js}</title>
++    <title>selendra{.js}</title>
+     <link href="fonts/fonts.css" rel="stylesheet">
+   </head>
+   <body style="margin:0; overflow-x:hidden; text-align:center">
+diff --git a/packages/extension/src/packageInfo.ts b/packages/extension/src/packageInfo.ts
+index e3184005..66a2c082 100644
+--- a/packages/extension/src/packageInfo.ts
++++ b/packages/extension/src/packageInfo.ts
+@@ -3,4 +3,4 @@
+ 
+ // Do not edit, auto-generated by @polkadot/dev
+ 
+-export const packageInfo = { name: '@polkadot/extension', path: 'auto', type: 'auto', version: '0.44.7-23-x' };
++export const packageInfo = { name: '@polkadot/extension', path: 'auto', type: 'auto', version: '0.1.0-1-x' };
+diff --git a/yarn.lock b/yarn.lock
+index 315ca27a..af7dbf9f 100644
+--- a/yarn.lock
++++ b/yarn.lock
+@@ -2635,16 +2635,16 @@ __metadata:
+   languageName: node
+   linkType: hard
+ 
+-"@polkadot/extension-base@^0.44.7-23-x, @polkadot/extension-base@workspace:packages/extension-base":
++"@polkadot/extension-base@^0.1.0-1-x, @polkadot/extension-base@workspace:packages/extension-base":
+   version: 0.0.0-use.local
+   resolution: "@polkadot/extension-base@workspace:packages/extension-base"
+   dependencies:
+     "@babel/runtime": ^7.20.1
+     "@polkadot/api": ^9.8.2
+-    "@polkadot/extension-chains": ^0.44.7-23-x
+-    "@polkadot/extension-dapp": ^0.44.7-23-x
+-    "@polkadot/extension-inject": ^0.44.7-23-x
+-    "@polkadot/extension-mocks": ^0.44.7-23-x
++    "@polkadot/extension-chains": ^0.1.0-1-x
++    "@polkadot/extension-dapp": ^0.1.0-1-x
++    "@polkadot/extension-inject": ^0.1.0-1-x
++    "@polkadot/extension-mocks": ^0.1.0-1-x
+     "@polkadot/keyring": ^10.1.13
+     "@polkadot/networks": ^10.1.13
+     "@polkadot/phishing": ^0.18.11
+@@ -2659,12 +2659,12 @@ __metadata:
+   languageName: unknown
+   linkType: soft
+ 
+-"@polkadot/extension-chains@^0.44.7-23-x, @polkadot/extension-chains@workspace:packages/extension-chains":
++"@polkadot/extension-chains@^0.1.0-1-x, @polkadot/extension-chains@workspace:packages/extension-chains":
+   version: 0.0.0-use.local
+   resolution: "@polkadot/extension-chains@workspace:packages/extension-chains"
+   dependencies:
+     "@babel/runtime": ^7.20.1
+-    "@polkadot/extension-inject": ^0.44.7-23-x
++    "@polkadot/extension-inject": ^0.1.0-1-x
+     "@polkadot/networks": ^10.1.13
+     "@polkadot/util": ^10.1.13
+     "@polkadot/util-crypto": ^10.1.13
+@@ -2680,7 +2680,7 @@ __metadata:
+   dependencies:
+     "@babel/runtime": ^7.20.1
+     "@metamask/detect-provider": ^1.2.0
+-    "@polkadot/extension-inject": ^0.44.7-23-x
++    "@polkadot/extension-inject": ^0.1.0-1-x
+     "@polkadot/types": ^9.8.2
+     "@polkadot/util": ^10.1.13
+     web3: ^1.8.1
+@@ -2689,12 +2689,12 @@ __metadata:
+   languageName: unknown
+   linkType: soft
+ 
+-"@polkadot/extension-dapp@^0.44.7-23-x, @polkadot/extension-dapp@workspace:packages/extension-dapp":
++"@polkadot/extension-dapp@^0.1.0-1-x, @polkadot/extension-dapp@workspace:packages/extension-dapp":
+   version: 0.0.0-use.local
+   resolution: "@polkadot/extension-dapp@workspace:packages/extension-dapp"
+   dependencies:
+     "@babel/runtime": ^7.20.1
+-    "@polkadot/extension-inject": ^0.44.7-23-x
++    "@polkadot/extension-inject": ^0.1.0-1-x
+     "@polkadot/util": ^10.1.13
+     "@polkadot/util-crypto": ^10.1.13
+   peerDependencies:
+@@ -2704,7 +2704,7 @@ __metadata:
+   languageName: unknown
+   linkType: soft
+ 
+-"@polkadot/extension-inject@^0.44.7-23-x, @polkadot/extension-inject@workspace:packages/extension-inject":
++"@polkadot/extension-inject@^0.1.0-1-x, @polkadot/extension-inject@workspace:packages/extension-inject":
+   version: 0.0.0-use.local
+   resolution: "@polkadot/extension-inject@workspace:packages/extension-inject"
+   dependencies:
+@@ -2721,7 +2721,7 @@ __metadata:
+   languageName: unknown
+   linkType: soft
+ 
+-"@polkadot/extension-mocks@^0.44.7-23-x, @polkadot/extension-mocks@workspace:packages/extension-mocks":
++"@polkadot/extension-mocks@^0.1.0-1-x, @polkadot/extension-mocks@workspace:packages/extension-mocks":
+   version: 0.0.0-use.local
+   resolution: "@polkadot/extension-mocks@workspace:packages/extension-mocks"
+   dependencies:
+@@ -2730,7 +2730,7 @@ __metadata:
+   languageName: unknown
+   linkType: soft
+ 
+-"@polkadot/extension-ui@^0.44.7-23-x, @polkadot/extension-ui@workspace:packages/extension-ui":
++"@polkadot/extension-ui@^0.1.0-1-x, @polkadot/extension-ui@workspace:packages/extension-ui":
+   version: 0.0.0-use.local
+   resolution: "@polkadot/extension-ui@workspace:packages/extension-ui"
+   dependencies:
+@@ -2740,11 +2740,11 @@ __metadata:
+     "@fortawesome/free-regular-svg-icons": ^6.2.1
+     "@fortawesome/free-solid-svg-icons": ^6.2.1
+     "@fortawesome/react-fontawesome": ^0.2.0
+-    "@polkadot/extension-base": ^0.44.7-23-x
+-    "@polkadot/extension-chains": ^0.44.7-23-x
+-    "@polkadot/extension-dapp": ^0.44.7-23-x
+-    "@polkadot/extension-inject": ^0.44.7-23-x
+-    "@polkadot/extension-mocks": ^0.44.7-23-x
++    "@polkadot/extension-base": ^0.1.0-1-x
++    "@polkadot/extension-chains": ^0.1.0-1-x
++    "@polkadot/extension-dapp": ^0.1.0-1-x
++    "@polkadot/extension-inject": ^0.1.0-1-x
++    "@polkadot/extension-mocks": ^0.1.0-1-x
+     "@polkadot/hw-ledger": ^10.1.13
+     "@polkadot/keyring": ^10.1.13
+     "@polkadot/networks": ^10.1.13
+@@ -2788,9 +2788,9 @@ __metadata:
+   dependencies:
+     "@babel/runtime": ^7.20.1
+     "@polkadot/dev": ^0.67.161
+-    "@polkadot/extension-base": ^0.44.7-23-x
+-    "@polkadot/extension-inject": ^0.44.7-23-x
+-    "@polkadot/extension-ui": ^0.44.7-23-x
++    "@polkadot/extension-base": ^0.1.0-1-x
++    "@polkadot/extension-inject": ^0.1.0-1-x
++    "@polkadot/extension-ui": ^0.1.0-1-x
+     babel-loader: ^8.2.5
+     browser-resolve: ^2.0.0
+     buffer: ^6.0.3
